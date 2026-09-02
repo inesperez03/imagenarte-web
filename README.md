@@ -78,19 +78,28 @@ git push -u origin main
 
 No se suben `imagenarte.db` ni `uploads/`, porque están en `.gitignore`.
 
-## Desplegar la web
+## Desplegar gratis con Render + Supabase
 
-Esta app tiene frontend y backend juntos. No conviene separarla todavía.
+Esta app tiene frontend y backend juntos. Para que sea gratis en Render, los datos y fotos se guardan en Supabase.
 
-Recomendación: desplegarla como servicio Python en Render usando `render.yaml`.
+Primero ejecuta el SQL de `supabase_schema.sql` en Supabase:
+
+1. Supabase > proyecto `imagenarte`.
+2. `SQL Editor`.
+3. `New query`.
+4. Pega el contenido de `supabase_schema.sql`.
+5. Pulsa `Run`.
+
+Después despliega en Render como Blueprint usando `render.yaml`.
 
 Configuración:
 
 - Build command: vacío.
 - Start command: `python server.py`.
 - Variable `HOST`: `0.0.0.0`.
+- Variable `SUPABASE_URL`: `https://czbxwswkbvabnvyxqnqj.supabase.co`.
+- Variable `SUPABASE_BUCKET`: `imagenes`.
+- Variable `SUPABASE_SERVICE_ROLE_KEY`: la `service_role key` privada de Supabase.
 - Variable `IMAGENARTE_ADMIN_PASSWORD`: la contraseña real de gestión.
-- Disco persistente montado en `/var/data`.
-- Variable `IMAGENARTE_DATA_DIR`: `/var/data`.
 
-El disco persistente es importante: sin él, las fotos subidas y la base de datos podrían perderse al reiniciar el servidor.
+No uses la clave `publishable` para `SUPABASE_SERVICE_ROLE_KEY`; esa no sirve para el backend de gestion.

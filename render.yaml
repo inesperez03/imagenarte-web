@@ -2,17 +2,17 @@ services:
   - type: web
     name: imagenarte-web
     runtime: python
-    plan: starter
+    plan: free
     buildCommand: ""
     startCommand: python server.py
     envVars:
       - key: HOST
         value: 0.0.0.0
-      - key: IMAGENARTE_DATA_DIR
-        value: /var/data
+      - key: SUPABASE_URL
+        value: https://czbxwswkbvabnvyxqnqj.supabase.co
+      - key: SUPABASE_BUCKET
+        value: imagenes
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
       - key: IMAGENARTE_ADMIN_PASSWORD
         sync: false
-    disk:
-      name: imagenarte-data
-      mountPath: /var/data
-      sizeGB: 1
