@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Imagenarte | Arte y Enmarcaciones</title>
+    <meta
+      name="description"
+      content="Escaparate de cuadros, arte y enmarcaciones de Imagenarte."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#" data-view-target="inicio" aria-label="Imagenarte inicio">
+        <img class="brand-logo" src="assets/logo-imagenarte.png" alt="" />
+        <span>
+          <strong>Imagenarte</strong>
+          <small>Galería de arte y enmarcación</small>
+        </span>
+      </a>
+      <nav class="top-nav" aria-label="Navegación principal">
+        <button class="nav-tab active" type="button" data-view-target="inicio">Inicio</button>
+        <button class="nav-tab" type="button" data-view-target="escaparate">Escaparate</button>
+        <button class="nav-tab" type="button" data-view-target="contacto">Contacto</button>
+        <button class="ghost-button" type="button" data-open-admin>Gestión</button>
+      </nav>
+    </header>
+
+    <main>
+      <section class="page-view active" id="view-inicio">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Tienda de arte y enmarcaciones</p>
+          <h1>Imagenarte</h1>
+          <p>
+            Galería de arte y taller de enmarcación desde 1990 en Castellón.
+            Regalar arte es regalar cultura.
+          </p>
+          <div class="hero-actions">
+            <button class="primary-button" type="button" data-view-target="escaparate">Ver cuadros en stock</button>
+            <a class="secondary-button" href="https://www.instagram.com/cuadrosimagenarte/" target="_blank" rel="noreferrer">
+              Instagram
+            </a>
+          </div>
+        </div>
+        <div class="hero-gallery" aria-label="Identidad visual de Imagenarte">
+          <img class="hero-logo" src="assets/logo-imagenarte.png" alt="Imagenarte" />
+          <div class="feature-art art-one"></div>
+          <div class="feature-art art-two"></div>
+          <div class="feature-art art-three"></div>
+        </div>
+      </section>
+
+      <section class="intro-section">
+        <div>
+          <p class="eyebrow">Nuestra tienda</p>
+          <h2>Una selección cuidada para vestir paredes con intención.</h2>
+        </div>
+        <div class="intro-copy">
+          <p>
+            Imagenarte es una galería de arte y taller de enmarcación en
+            Castellón de la Plana, con oficio, trato cercano y una selección
+            cambiante de obra disponible.
+          </p>
+          <p>
+            La tienda ayuda a elegir obras por estilo, color, tamaño y ambiente,
+            combinando asesoramiento cercano con un escaparate actualizado de
+            piezas disponibles.
+          </p>
+        </div>
+      </section>
+
+      <section class="services-band">
+        <article>
+          <span>01</span>
+          <h2>Cuadros en stock</h2>
+          <p>Escaparate actualizado con piezas disponibles, estilos, colores y medidas.</p>
+        </article>
+        <article>
+          <span>02</span>
+          <h2>Enmarcación</h2>
+          <p>Asesoramiento para elegir marco, passepartout y acabado según cada obra.</p>
+        </article>
+        <article>
+          <span>03</span>
+          <h2>Decoración</h2>
+          <p>Selección visual para combinar piezas con interiores clásicos o actuales.</p>
+        </article>
+      </section>
+      </section>
+
+      <section class="page-view showroom" id="view-escaparate">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Escaparate</p>
+            <h2>Cuadros disponibles</h2>
+          </div>
+          <p>
+            Pensado para más de 200 cuadros: filtra, ordena y navega por páginas
+            sin perder claridad.
+          </p>
+        </div>
+
+        <div class="toolbar" aria-label="Filtros del escaparate">
+          <label>
+            Buscar
+            <input id="searchInput" type="search" placeholder="Título, estilo, medidas..." />
+          </label>
+          <label>
+            Tipo
+            <select id="typeFilter"></select>
+          </label>
+          <label>
+            Color
+            <select id="colorFilter"></select>
+          </label>
+          <label>
+            Grupo
+            <select id="groupFilter"></select>
+          </label>
+          <label>
+            Ordenar
+            <select id="sortSelect">
+              <option value="recent">Más recientes</option>
+              <option value="title">Nombre</option>
+              <option value="priceAsc">Precio menor</option>
+              <option value="priceDesc">Precio mayor</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="result-line">
+          <span id="resultCount"></span>
+          <span id="pageStatus"></span>
+          <button class="text-button" type="button" id="resetFilters">Limpiar filtros</button>
+        </div>
+
+        <div class="product-grid" id="productGrid"></div>
+        <div class="pagination" id="pagination" aria-label="Paginación del escaparate"></div>
+      </section>
+
+      <section class="page-view contact-page" id="view-contacto">
+      <section class="contact-hero">
+        <div>
+          <p class="eyebrow">Contacto</p>
+          <h1>Hablemos de tu próxima pared.</h1>
+          <p>
+            Consulta disponibilidad, medidas, encargos de enmarcación o piezas
+            que encajen con tu espacio.
+          </p>
+        </div>
+      </section>
+      <section class="contact-band">
+        <div>
+          <p class="eyebrow">Visítanos</p>
+          <h2>Arte con presencia, marcos con oficio.</h2>
+        </div>
+        <div class="contact-list">
+          <span>C/ Núñez de Arce, 36</span>
+          <span>Castellón de la Plana, 12001</span>
+          <a href="https://www.instagram.com/cuadrosimagenarte/" target="_blank" rel="noreferrer">@cuadrosimagenarte</a>
+          <span>Consulta disponibilidad y encargos personalizados.</span>
+        </div>
+      </section>
+      </section>
+    </main>
+
+    <dialog class="admin-dialog" id="adminDialog">
+      <div class="admin-shell">
+        <div class="admin-header">
+          <div>
+            <p class="eyebrow">Gestión interna</p>
+            <h2>Productos</h2>
+          </div>
+          <button class="icon-button" type="button" data-close-admin aria-label="Cerrar">×</button>
+        </div>
+
+        <div class="login-panel" id="loginPanel">
+          <p>Introduce la contraseña local para editar el escaparate.</p>
+          <form id="loginForm" class="login-form">
+            <input id="passwordInput" type="password" placeholder="Contraseña" autocomplete="current-password" />
+            <button class="primary-button" type="submit">Entrar</button>
+          </form>
+          <small>Contraseña de esta demo: <strong>imagenarte</strong></small>
+        </div>
+
+        <div class="admin-panel hidden" id="adminPanel">
+          <form id="productForm" class="product-form">
+            <input type="hidden" id="productId" />
+            <label>
+              Foto del cuadro
+              <input id="imageInput" type="file" accept="image/*" />
+            </label>
+            <div class="form-grid">
+              <label>
+                Título
+                <input id="titleInput" required placeholder="Ej. Paisaje mediterráneo" />
+              </label>
+              <label>
+                Tipo
+                <select id="typeInput" required></select>
+              </label>
+              <label>
+                Medidas
+                <input id="sizeInput" placeholder="60 x 80 cm" />
+              </label>
+              <label>
+                Precio
+                <input id="priceInput" type="number" min="0" step="1" placeholder="Opcional" />
+              </label>
+            </div>
+            <div class="tag-picker-grid">
+              <fieldset class="tag-fieldset">
+                <legend>Colores</legend>
+                <div class="admin-tag-options" id="colorsInput"></div>
+              </fieldset>
+              <fieldset class="tag-fieldset">
+                <legend>Grupos</legend>
+                <div class="admin-tag-options" id="groupsInput"></div>
+              </fieldset>
+            </div>
+            <label>
+              Descripción
+              <textarea id="descriptionInput" rows="3" placeholder="Breve descripción de la pieza"></textarea>
+            </label>
+            <div class="form-row">
+              <label class="check-label">
+                <input id="availableInput" type="checkbox" checked />
+                Disponible
+              </label>
+              <label class="check-label">
+                <input id="publishedInput" type="checkbox" checked />
+                Publicado
+              </label>
+            </div>
+            <div class="form-actions">
+              <button class="primary-button" type="submit">Guardar producto</button>
+              <button class="secondary-button" type="button" id="clearForm">Nuevo</button>
+            </div>
+          </form>
+          <section class="tag-manager" aria-label="Gestión de etiquetas">
+            <div>
+              <p class="eyebrow">Etiquetas fijas</p>
+              <h3>Añadir nuevas etiquetas</h3>
+            </div>
+            <form id="tagForm" class="tag-form">
+              <label>
+                Lista
+                <select id="tagKindInput">
+                  <option value="types">Tipos</option>
+                  <option value="colors">Colores</option>
+                  <option value="groups">Grupos</option>
+                </select>
+              </label>
+              <label>
+                Nueva etiqueta
+                <input id="tagNameInput" required placeholder="Ej. Acuarela, azul, marinas..." />
+              </label>
+              <button class="secondary-button" type="submit">Añadir etiqueta</button>
+            </form>
+            <div class="tag-manager-lists" id="tagManagerLists"></div>
+          </section>
+          <div class="admin-products" id="adminProducts"></div>
+        </div>
+      </div>
+    </dialog>
+
+    <script src="app.js"></script>
+  </body>
+</html>

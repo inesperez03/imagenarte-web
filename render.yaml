@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: imagenarte-web
+    runtime: python
+    plan: starter
+    buildCommand: ""
+    startCommand: python server.py
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: IMAGENARTE_DATA_DIR
+        value: /var/data
+      - key: IMAGENARTE_ADMIN_PASSWORD
+        sync: false
+    disk:
+      name: imagenarte-data
+      mountPath: /var/data
+      sizeGB: 1
