@@ -199,6 +199,9 @@ class ImagenarteHandler(BaseHTTPRequestHandler):
         self.serve_static(parsed.path)
 
     def do_POST(self):
+        if self.path == "/api/login":
+            self.handle_login()
+            return
         if self.path == "/api/products":
             self.require_admin_then(self.handle_create_product)
             return
@@ -206,6 +209,9 @@ class ImagenarteHandler(BaseHTTPRequestHandler):
             self.require_admin_then(self.handle_create_tag)
             return
         self.send_error(404)
+
+    def handle_login(self):
+        self.require_admin_then(lambda: self.send_json({"ok": True}))
 
     def do_PUT(self):
         parsed = urlparse(self.path)

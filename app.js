@@ -381,9 +381,12 @@ function escapeHtml(value) {
 
 async function unlockAdmin(password) {
   state.adminPassword = password;
-  try {
-    await loadProducts(true);
-  } catch {
+  const response = await fetch("/api/login", {
+    method: "POST",
+    headers: adminHeaders(),
+  });
+
+  if (!response.ok) {
     state.adminPassword = "";
     els.passwordInput.setCustomValidity("Contraseña incorrecta");
     els.passwordInput.reportValidity();
@@ -391,13 +394,18 @@ async function unlockAdmin(password) {
     return;
   }
 
+  try {
+    await refreshProducts(true);
+  } catch {
+    state.adminPassword = "";
+    alert("La contraseña es correcta, pero no se han podido cargar los datos de gestión. Revisa Supabase o Render.");
+    return;
+  }
+
   state.adminUnlocked = true;
   els.loginPanel.classList.add("hidden");
   els.adminPanel.classList.remove("hidden");
   els.passwordInput.value = "";
-  syncFilterOptions();
-  renderProducts();
-  renderAdminProducts();
 }
 
 function bindEvents() {
