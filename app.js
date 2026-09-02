@@ -568,7 +568,8 @@ async function handleTagSubmit(event) {
   });
 
   if (!response.ok) {
-    alert("No se ha podido crear la etiqueta.");
+    const message = await readErrorMessage(response);
+    alert(`No se ha podido crear la etiqueta. ${message}`);
     return;
   }
 
@@ -580,6 +581,15 @@ async function handleTagSubmit(event) {
 
 function adminHeaders() {
   return { "X-Admin-Password": state.adminPassword };
+}
+
+async function readErrorMessage(response) {
+  try {
+    const data = await response.json();
+    return data.error || "";
+  } catch {
+    return "";
+  }
 }
 
 function switchView(viewName) {

@@ -498,7 +498,9 @@ def ensure_sqlite_product_tags(conn, fields):
 
 
 def supabase_headers(extra=None):
-    headers = {"apikey": SUPABASE_KEY, "Authorization": f"Bearer {SUPABASE_KEY}"}
+    headers = {"apikey": SUPABASE_KEY}
+    if not SUPABASE_KEY.startswith("sb_"):
+        headers["Authorization"] = f"Bearer {SUPABASE_KEY}"
     if extra:
         headers.update(extra)
     return headers
