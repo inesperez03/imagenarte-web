@@ -34,3 +34,7 @@ drop trigger if exists products_set_updated_at on public.products;
 create trigger products_set_updated_at
 before update on public.products
 for each row execute function public.set_updated_at();
+
+grant usage on schema public to service_role;
+grant all on table public.products to service_role;
+grant all on table public.tags to service_role;

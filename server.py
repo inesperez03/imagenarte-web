@@ -237,7 +237,7 @@ class ImagenarteHandler(BaseHTTPRequestHandler):
             return
 
         if USE_SUPABASE:
-            self.send_json({"products": supabase_list_products(query, is_admin(self))})
+            self.try_supabase(lambda: self.send_json({"products": supabase_list_products(query, is_admin(self))}))
             return
 
         include_all = wants_all
@@ -252,7 +252,7 @@ class ImagenarteHandler(BaseHTTPRequestHandler):
 
     def handle_list_tags(self):
         if USE_SUPABASE:
-            self.send_json({"tags": supabase_list_tags()})
+            self.try_supabase(lambda: self.send_json({"tags": supabase_list_tags()}))
             return
 
         tags = {"types": [], "colors": [], "groups": []}
@@ -272,8 +272,7 @@ class ImagenarteHandler(BaseHTTPRequestHandler):
             return
 
         if USE_SUPABASE:
-            supabase_add_tag(kind, name)
-            self.send_json({"tags": supabase_list_tags()})
+            self.try_supabase(lambda: (supabase_add_tag(kind, name), self.send_json({"tags": supabase_list_tags()})))
             return
 
         with connect() as conn:
@@ -285,8 +284,7 @@ class ImagenarteHandler(BaseHTTPRequestHandler):
         product_id = str(uuid.uuid4())
 
         if USE_SUPABASE:
-            product = supabase_create_product(product_id, fields, image_path)
-            self.send_json({"product": product}, status=201)
+            self.try_supabase(lambda: self.send_json({"product": supabase_create_product(product_id, fields, image_path)}, status=201))
             return
 
         with connect() as conn:
@@ -306,16 +304,7 @@ class ImagenarteHandler(BaseHTTPRequestHandler):
 
     def handle_update_product(self, product_id):
         if USE_SUPABASE:
-            existing = supabase_get_product(product_id)
-            if not existing:
-                self.send_error(404)
-                return
-            fields, image_path = self.parse_form()
-            final_image = image_path or existing.get("image") or ""
-            product = supabase_update_product(product_id, fields, final_image)
-            if image_path and existing.get("image"):
-                delete_upload(existing["image"])
-            self.send_json({"product": product})
+            self.try_supabase(lambda: self.update_supabase_product(product_id))
             return
 
         with connect() as conn:
@@ -345,14 +334,7 @@ class ImagenarteHandler(BaseHTTPRequestHandler):
 
     def handle_delete_product(self, product_id):
         if USE_SUPABASE:
-            existing = supabase_get_product(product_id)
-            if not existing:
-                self.send_error(404)
-                return
-            supabase_delete_product(product_id)
-            if existing.get("image"):
-                delete_upload(existing["image"])
-            self.send_json({"ok": True})
+            self.try_supabase(lambda: self.delete_supabase_product(product_id))
             return
 
         with connect() as conn:
@@ -401,6 +383,34 @@ class ImagenarteHandler(BaseHTTPRequestHandler):
             self.send_json({"error": "No autorizado"}, status=401)
             return
         callback()
+
+    def try_supabase(self, callback):
+        try:
+            callback()
+        except Exception as error:
+            self.send_json({"error": str(error)}, status=500)
+
+    def update_supabase_product(self, product_id):
+        existing = supabase_get_product(product_id)
+        if not existing:
+            self.send_error(404)
+            return
+        fields, image_path = self.parse_form()
+        final_image = image_path or existing.get("image") or ""
+        product = supabase_update_product(product_id, fields, final_image)
+        if image_path and existing.get("image"):
+            delete_upload(existing["image"])
+        self.send_json({"product": product})
+
+    def delete_supabase_product(self, product_id):
+        existing = supabase_get_product(product_id)
+        if not existing:
+            self.send_error(404)
+            return
+        supabase_delete_product(product_id)
+        if existing.get("image"):
+            delete_upload(existing["image"])
+        self.send_json({"ok": True})
 
     def serve_static(self, request_path):
         relative = "index.html" if request_path in ("", "/") else request_path.lstrip("/")

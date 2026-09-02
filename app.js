@@ -118,14 +118,14 @@ async function loadProducts(includeAll = false) {
   const response = await fetch(`/api/products${includeAll ? "?all=1" : ""}`, {
     headers: includeAll ? adminHeaders() : {},
   });
-  if (!response.ok) throw new Error("No se han podido cargar los productos.");
+  if (!response.ok) throw new Error(await readErrorMessage(response) || "No se han podido cargar los productos.");
   const data = await response.json();
   state.products = data.products;
 }
 
 async function loadTags() {
   const response = await fetch("/api/tags");
-  if (!response.ok) throw new Error("No se han podido cargar las etiquetas.");
+  if (!response.ok) throw new Error(await readErrorMessage(response) || "No se han podido cargar las etiquetas.");
   const data = await response.json();
   state.tags = data.tags;
 }
@@ -396,9 +396,9 @@ async function unlockAdmin(password) {
 
   try {
     await refreshProducts(true);
-  } catch {
+  } catch (error) {
     state.adminPassword = "";
-    alert("La contraseña es correcta, pero no se han podido cargar los datos de gestión. Revisa Supabase o Render.");
+    alert(`La contraseña es correcta, pero no se han podido cargar los datos de gestión. ${error.message}`);
     return;
   }
 
