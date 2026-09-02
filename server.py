@@ -3,7 +3,8 @@ from pathlib import Path
 from urllib.error import HTTPError
 from urllib.parse import parse_qs, quote, unquote, urlparse
 from urllib.request import Request, urlopen
-import cgi
+from email.parser import BytesParser
+from email.policy import default
 import json
 import mimetypes
 import os
@@ -355,22 +356,33 @@ class ImagenarteHandler(BaseHTTPRequestHandler):
         self.send_json({"ok": True})
 
     def parse_form(self):
-        form = cgi.FieldStorage(
-            fp=self.rfile,
-            headers=self.headers,
-            environ={
-                "REQUEST_METHOD": self.command,
-                "CONTENT_TYPE": self.headers.get("Content-Type", ""),
-            },
-        )
+        content_type = self.headers.get("Content-Type", "")
+        length = int(self.headers.get("Content-Length", 0))
+        body = self.rfile.read(length)
         fields = {}
         image_path = ""
-        for key in form.keys():
-            item = form[key]
-            if key == "image" and getattr(item, "filename", ""):
-                image_path = save_upload(item)
-            elif not getattr(item, "filename", ""):
-                fields[key] = item.value
+
+        if content_type.startswith("multipart/form-data"):
+            message = BytesParser(policy=default).parsebytes(
+                b"Content-Type: " + content_type.encode("utf-8") + b"\r\n\r\n" + body
+            )
+            for part in message.iter_parts():
+                name = part.get_param("name", header="content-disposition")
+                filename = part.get_filename()
+                if not name:
+                    continue
+                if name == "image" and filename:
+                    image_path = save_upload_bytes(filename, part.get_payload(decode=True) or b"")
+                elif not filename:
+                    payload = part.get_payload(decode=True) or b""
+                    fields[name] = payload.decode(part.get_content_charset() or "utf-8", errors="replace")
+            return fields, image_path
+
+        if content_type.startswith("application/x-www-form-urlencoded"):
+            parsed = parse_qs(body.decode("utf-8", errors="replace"))
+            fields = {key: values[0] for key, values in parsed.items()}
+            return fields, image_path
+
         return fields, image_path
 
     def require_admin_then(self, callback):
@@ -604,7 +616,7 @@ def save_upload(item):
     filename = f"{uuid.uuid4()}{extension}"
 
     if USE_SUPABASE:
-        return save_supabase_upload(item, filename)
+        return save_supabase_upload(item.file.read(), filename)
 
     target = UPLOAD_DIR / filename
     with target.open("wb") as file:
@@ -612,8 +624,22 @@ def save_upload(item):
     return f"/uploads/{filename}"
 
 
-def save_supabase_upload(item, filename):
-    data = item.file.read()
+def save_upload_bytes(original_filename, data):
+    extension = Path(original_filename).suffix.lower()
+    if extension not in (".jpg", ".jpeg", ".png", ".webp", ".gif"):
+        extension = ".jpg"
+    filename = f"{uuid.uuid4()}{extension}"
+
+    if USE_SUPABASE:
+        return save_supabase_upload(data, filename)
+
+    target = UPLOAD_DIR / filename
+    with target.open("wb") as file:
+        file.write(data)
+    return f"/uploads/{filename}"
+
+
+def save_supabase_upload(data, filename):
     content_type = mimetypes.guess_type(filename)[0] or "application/octet-stream"
     encoded_name = quote(filename)
     request = Request(
