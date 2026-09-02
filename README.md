@@ -24,15 +24,9 @@ http://localhost:5173
 
 Pulsa `Gestión` en la cabecera.
 
-Contraseña de demo:
-
-```text
-imagenarte
-```
-
 Los productos se guardan en `imagenarte.db` y las fotos subidas se guardan como archivos dentro de `uploads/`.
 
-La contraseña local por defecto es `imagenarte`.
+La contraseña local por defecto es `imagenarte`. En Render se usa la variable privada `IMAGENARTE_ADMIN_PASSWORD`.
 
 ## Etiquetas
 

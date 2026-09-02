@@ -1,4 +1,3 @@
-const ADMIN_PASSWORD = "imagenarte";
 const PAGE_SIZE = 12;
 
 const sampleProducts = [
@@ -76,6 +75,7 @@ const state = {
   },
   currentPage: 1,
   adminUnlocked: false,
+  adminPassword: "",
 };
 
 const els = {
@@ -116,7 +116,7 @@ const els = {
 
 async function loadProducts(includeAll = false) {
   const response = await fetch(`/api/products${includeAll ? "?all=1" : ""}`, {
-    headers: includeAll ? { "X-Admin-Password": ADMIN_PASSWORD } : {},
+    headers: includeAll ? adminHeaders() : {},
   });
   if (!response.ok) throw new Error("No se han podido cargar los productos.");
   const data = await response.json();
@@ -357,7 +357,7 @@ async function handleProductSubmit(event) {
 
   const response = await fetch(id ? `/api/products/${encodeURIComponent(id)}` : "/api/products", {
     method: id ? "PUT" : "POST",
-    headers: { "X-Admin-Password": ADMIN_PASSWORD },
+    headers: adminHeaders(),
     body: formData,
   });
 
@@ -379,11 +379,25 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-function unlockAdmin() {
+async function unlockAdmin(password) {
+  state.adminPassword = password;
+  try {
+    await loadProducts(true);
+  } catch {
+    state.adminPassword = "";
+    els.passwordInput.setCustomValidity("Contraseña incorrecta");
+    els.passwordInput.reportValidity();
+    els.passwordInput.setCustomValidity("");
+    return;
+  }
+
   state.adminUnlocked = true;
   els.loginPanel.classList.add("hidden");
   els.adminPanel.classList.remove("hidden");
-  refreshProducts(true);
+  els.passwordInput.value = "";
+  syncFilterOptions();
+  renderProducts();
+  renderAdminProducts();
 }
 
 function bindEvents() {
@@ -404,14 +418,7 @@ function bindEvents() {
 
   els.loginForm.addEventListener("submit", (event) => {
     event.preventDefault();
-    if (els.passwordInput.value === ADMIN_PASSWORD) {
-      unlockAdmin();
-      els.passwordInput.value = "";
-    } else {
-      els.passwordInput.setCustomValidity("Contraseña incorrecta");
-      els.passwordInput.reportValidity();
-      els.passwordInput.setCustomValidity("");
-    }
+    unlockAdmin(els.passwordInput.value);
   });
 
   els.searchInput.addEventListener("input", (event) => {
@@ -472,7 +479,7 @@ function bindEvents() {
 async function deleteProduct(productId) {
   const response = await fetch(`/api/products/${encodeURIComponent(productId)}`, {
     method: "DELETE",
-    headers: { "X-Admin-Password": ADMIN_PASSWORD },
+    headers: adminHeaders(),
   });
   if (!response.ok) {
     alert("No se ha podido eliminar el producto.");
@@ -552,7 +559,7 @@ async function handleTagSubmit(event) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-Admin-Password": ADMIN_PASSWORD,
+      ...adminHeaders(),
     },
     body: JSON.stringify({
       kind: els.tagKindInput.value,
@@ -569,6 +576,10 @@ async function handleTagSubmit(event) {
   const data = await response.json();
   state.tags = data.tags;
   syncFilterOptions();
+}
+
+function adminHeaders() {
+  return { "X-Admin-Password": state.adminPassword };
 }
 
 function switchView(viewName) {

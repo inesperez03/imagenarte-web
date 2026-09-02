@@ -224,12 +224,17 @@ class ImagenarteHandler(BaseHTTPRequestHandler):
         self.send_error(404)
 
     def handle_list_products(self, query):
+        params = parse_qs(query)
+        wants_all = params.get("all", ["0"])[0] == "1"
+        if wants_all and not is_admin(self):
+            self.send_json({"error": "No autorizado"}, status=401)
+            return
+
         if USE_SUPABASE:
             self.send_json({"products": supabase_list_products(query, is_admin(self))})
             return
 
-        params = parse_qs(query)
-        include_all = params.get("all", ["0"])[0] == "1" and is_admin(self)
+        include_all = wants_all
         sql = "SELECT * FROM products"
         if not include_all:
             sql += " WHERE published = 1"
